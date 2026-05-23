@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QR Scanner</title>
+<title>QR Scanner + Testcodes</title>
 
 <style>
 body{
@@ -83,6 +83,20 @@ button{
   <div id="result" style="margin-top:10px;font-weight:bold;"></div>
 </div>
 
+<div class="card">
+  <h2>Test QR‑codes</h2>
+  <p>Scan deze om je scanner te testen:</p>
+
+  <p><b>Testcode 1: "TEST_OK"</b></p>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TEST_OK">
+
+  <p><b>Testcode 2: "123456"</b></p>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=123456">
+
+  <p><b>Testcode 3: "ELIAS_TEST"</b></p>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ELIAS_TEST">
+</div>
+
 <div id="scannerOverlay">
   <div id="scannerBox">
     <div style="position:relative;">
@@ -95,7 +109,6 @@ button{
   </div>
 </div>
 
-<!-- QR library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 
 <script>
@@ -110,7 +123,6 @@ const Scanner = {
     document.getElementById("scannerOverlay").style.display="flex";
     document.getElementById("status").textContent="Camera starten…";
 
-    // PROBEER ACHTERCAMERA (ideal)
     navigator.mediaDevices.getUserMedia({
       video:{
         facingMode:{ ideal:"environment" },
@@ -119,7 +131,6 @@ const Scanner = {
       }
     })
     .catch(() => {
-      // FALLBACK NAAR EENDER WELKE CAMERA
       return navigator.mediaDevices.getUserMedia({
         video:true
       });
