@@ -95,6 +95,7 @@ button{
   </div>
 </div>
 
+<!-- QR library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 
 <script>
@@ -111,7 +112,7 @@ const Scanner = {
 
     navigator.mediaDevices.getUserMedia({
       video:{
-        facingMode:{ exact:"environment" },
+        facingMode:"environment",   // <-- FIXED (werkt op GitHub + iPad)
         width:{ ideal:1280 },
         height:{ ideal:720 }
       }
@@ -171,5 +172,3 @@ document.getElementById("closeScanner").onclick=()=>Scanner.stop();
 
 </body>
 </html>
-
-
