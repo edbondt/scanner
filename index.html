@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR Scanner</title>
+
+<style>
+body{
+  margin:0;
+  background:#f4f4f4;
+  font-family:Arial, sans-serif;
+}
+header{
+  background:#ff4d4d;
+  padding:12px;
+  color:white;
+  font-weight:bold;
+  font-size:20px;
+}
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:6px;
+  background:#ff4d4d;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+.card{
+  background:white;
+  padding:16px;
+  margin:16px;
+  border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
+.hidden{display:none!important}
+
+#scannerOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+#scannerBox{
+  background:white;
+  padding:16px;
+  border-radius:10px;
+  width:90%;
+  max-width:420px;
+  text-align:center;
+}
+#video{
+  width:100%;
+  border-radius:10px;
+  background:black;
+}
+#frame{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:60%;
+  height:60%;
+  transform:translate(-50%,-50%);
+  border:4px dashed #00ff55;
+  border-radius:12px;
+  pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>QR Scanner</header>
+
+<div class="card">
+  <h2>Scanner</h2>
+  <p>Richt de QR‑code in het groene kader.</p>
+  <button id="openScanner">Scanner openen</button>
+  <div id="result" style="margin-top:10px;font-weight:bold;"></div>
+</div>
+
+<div id="scannerOverlay">
+  <div id="scannerBox">
+    <div style="position:relative;">
+      <video id="video" autoplay playsinline></video>
+      <div id="frame"></div>
+    </div>
+    <canvas id="canvas" class="hidden"></canvas>
+    <p id="status" style="margin-top:10px;color:#555;">Camera starten…</p>
+    <button id="closeScanner">Sluiten</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+
+<script>
+const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+beep.volume = 0.4;
+
+const Scanner = {
+  stream:null,
+  timer:null,
+
+  start(){
+    document.getElementById("scannerOverlay").style.display="flex";
+    document.getElementById("status").textContent="Camera starten…";
+
+    navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:{ exact:"environment" },
+        width:{ ideal:1280 },
+        height:{ ideal:720 }
+      }
+    })
+    .then(stream=>{
+      this.stream = stream;
+      const video = document.getElementById("video");
+      video.srcObject = stream;
+      video.play();
+
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      setTimeout(()=>this.loop(video,canvas,ctx),500);
+    })
+    .catch(err=>{
+      document.getElementById("status").textContent="Camera fout: " + err;
+    });
+  },
+
+  loop(video,canvas,ctx){
+    if(!this.stream) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+    const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+    const code = jsQR(img.data,canvas.width,canvas.height);
+
+    if(code){
+      beep.play();
+      document.getElementById("result").textContent="Gescand: "+code.data;
+      this.stop();
+      return;
+    }
+
+    document.getElementById("status").textContent="Richt de QR‑code in het groene kader…";
+
+    this.timer = setTimeout(()=>this.loop(video,canvas,ctx),120);
+  },
+
+  stop(){
+    document.getElementById("scannerOverlay").style.display="none";
+    if(this.timer) clearTimeout(this.timer);
+    if(this.stream){
+      this.stream.getTracks().forEach(t=>t.stop());
+      this.stream=null;
+    }
+  }
+};
+
+document.getElementById("openScanner").onclick=()=>Scanner.start();
+document.getElementById("closeScanner").onclick=()=>Scanner.stop();
+</script>
+
+</body>
+</html>
