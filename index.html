@@ -110,12 +110,19 @@ const Scanner = {
     document.getElementById("scannerOverlay").style.display="flex";
     document.getElementById("status").textContent="Camera starten…";
 
+    // PROBEER ACHTERCAMERA (ideal)
     navigator.mediaDevices.getUserMedia({
       video:{
-        facingMode:"environment",   // <-- FIXED (werkt op GitHub + iPad)
+        facingMode:{ ideal:"environment" },
         width:{ ideal:1280 },
         height:{ ideal:720 }
       }
+    })
+    .catch(() => {
+      // FALLBACK NAAR EENDER WELKE CAMERA
+      return navigator.mediaDevices.getUserMedia({
+        video:true
+      });
     })
     .then(stream=>{
       this.stream = stream;
