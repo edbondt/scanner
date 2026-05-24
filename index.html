@@ -23,6 +23,8 @@ body{
   background:#f4f4f4;
   font-family:Arial, sans-serif;
 }
+
+/* HEADER */
 header{
   background:#ff4d4d;
   padding:12px;
@@ -33,15 +35,29 @@ header{
   justify-content:space-between;
   align-items:center;
 }
-button{
-  padding:10px 14px;
+
+/* MENU BAR */
+#menu{
+  display:flex;
+  overflow-x:auto;
+  background:#fff;
+  border-bottom:1px solid #ddd;
+}
+#menu button{
+  flex:1;
+  padding:12px;
   border:none;
-  border-radius:6px;
-  background:#ff4d4d;
-  color:white;
+  background:white;
   font-weight:bold;
   cursor:pointer;
+  border-right:1px solid #eee;
 }
+#menu button.active{
+  background:#ff4d4d;
+  color:white;
+}
+
+/* CARDS */
 .card{
   background:white;
   padding:16px;
@@ -49,6 +65,8 @@ button{
   border-radius:12px;
   box-shadow:0 2px 6px rgba(0,0,0,0.15);
 }
+
+/* TICKET UI */
 .ticket{
   border-radius:16px;
   border:1px solid #ddd;
@@ -99,6 +117,7 @@ button{
   background:#ffe6e6;
   color:#b30000;
 }
+
 .hidden{display:none!important}
 </style>
 </head>
@@ -110,45 +129,106 @@ button{
   <button id="installBtn" class="hidden">App installeren</button>
 </header>
 
-<!-- Ticket UI -->
-<div class="card">
-  <h2>Jouw ticket</h2>
-  <div class="ticket">
-    <div class="ticket-header">Ticket</div>
-
-    <div class="ticket-row">
-      <div>
-        <div class="ticket-label">Code</div>
-        <div class="ticket-value" id="ticketCode">Nog niet gescand</div>
-      </div>
-      <div>
-        <div class="ticket-label">Type</div>
-        <span class="ticket-type" id="ticketType">VIP</span>
-      </div>
-    </div>
-
-    <div class="ticket-row" style="margin-top:10px;">
-      <div class="ticket-label">Status</div>
-      <div id="ticketStatus" class="ticket-status bad">
-        Geen scan uitgevoerd
-      </div>
-    </div>
-  </div>
+<!-- MENU -->
+<div id="menu">
+  <button class="active" data-page="scanner">Scanner</button>
+  <button data-page="admin">Admin</button>
+  <button data-page="crew">Crew</button>
+  <button data-page="bar">Bar</button>
+  <button data-page="viewer">Viewer</button>
 </div>
 
-<!-- TYPE SCAN -->
-<div class="card">
-  <h2>Type scan</h2>
-  <p>Typ een ticketcode en druk op SCAN.</p>
+<!-- PAGINA'S -->
+<div id="pages">
 
-  <input id="typedInput" placeholder="Typ code hier..." style="width:100%;padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;">
-  <button style="margin-top:12px;width:100%;" id="typedScanBtn">SCAN</button>
+  <!-- SCANNER PAGE -->
+  <div id="scanner" class="page">
 
-  <div id="typedResult" style="margin-top:10px;font-weight:bold;"></div>
+    <div class="card">
+      <h2>Jouw ticket</h2>
+      <div class="ticket">
+        <div class="ticket-header">Ticket</div>
+
+        <div class="ticket-row">
+          <div>
+            <div class="ticket-label">Code</div>
+            <div class="ticket-value" id="ticketCode">Nog niet gescand</div>
+          </div>
+          <div>
+            <div class="ticket-label">Type</div>
+            <span class="ticket-type" id="ticketType">VIP</span>
+          </div>
+        </div>
+
+        <div class="ticket-row" style="margin-top:10px;">
+          <div class="ticket-label">Status</div>
+          <div id="ticketStatus" class="ticket-status bad">
+            Geen scan uitgevoerd
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Type scan</h2>
+      <p>Typ een ticketcode en druk op SCAN.</p>
+
+      <input id="typedInput" placeholder="Typ code hier..." style="width:100%;padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;">
+      <button style="margin-top:12px;width:100%;" id="typedScanBtn">SCAN</button>
+
+      <div id="typedResult" style="margin-top:10px;font-weight:bold;"></div>
+    </div>
+
+  </div>
+
+  <!-- ADMIN PAGE -->
+  <div id="admin" class="page hidden">
+    <div class="card">
+      <h2>Admin</h2>
+      <p>Admin functies komen hier.</p>
+    </div>
+  </div>
+
+  <!-- CREW PAGE -->
+  <div id="crew" class="page hidden">
+    <div class="card">
+      <h2>Crew</h2>
+      <p>Crew tools komen hier.</p>
+    </div>
+  </div>
+
+  <!-- BAR PAGE -->
+  <div id="bar" class="page hidden">
+    <div class="card">
+      <h2>Bar</h2>
+      <p>Bar functies komen hier.</p>
+    </div>
+  </div>
+
+  <!-- VIEWER PAGE -->
+  <div id="viewer" class="page hidden">
+    <div class="card">
+      <h2>Viewer</h2>
+      <p>Viewer scherm komt hier.</p>
+    </div>
+  </div>
+
 </div>
 
 <script>
-// Alleen type-scan, geen camera
+// MENU NAVIGATIE
+document.querySelectorAll("#menu button").forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll("#menu button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const page = btn.dataset.page;
+    document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+    document.getElementById(page).classList.remove("hidden");
+  };
+});
+
+// TYPE SCAN LOGICA
 const GELDIGE_TICKET_CODE = "Q-T9kuhRZ";
 
 function updateStatus(code){
