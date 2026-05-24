@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QR Scanner + Testcodes</title>
+<title>Ticket scanner</title>
 
 <style>
 body{
@@ -31,11 +31,63 @@ button{
   background:white;
   padding:16px;
   margin:16px;
-  border-radius:10px;
+  border-radius:12px;
   box-shadow:0 2px 6px rgba(0,0,0,0.15);
 }
 .hidden{display:none!important}
 
+/* Ticket UI */
+.ticket{
+  border-radius:16px;
+  border:1px solid #ddd;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.ticket-header{
+  font-size:18px;
+  font-weight:bold;
+}
+.ticket-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.ticket-label{
+  color:#777;
+  font-size:14px;
+}
+.ticket-value{
+  font-weight:bold;
+  font-size:16px;
+}
+.ticket-type{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  background:#ffe6b3;
+  color:#b36b00;
+  font-weight:bold;
+  font-size:13px;
+}
+.ticket-status{
+  margin-top:8px;
+  padding:8px 10px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:bold;
+}
+.ticket-status.ok{
+  background:#e6ffe9;
+  color:#1f8a3b;
+}
+.ticket-status.bad{
+  background:#ffe6e6;
+  color:#b30000;
+}
+
+/* Scanner overlay */
 #scannerOverlay{
   position:fixed;
   inset:0;
@@ -74,29 +126,47 @@ button{
 
 <body>
 
-<header>QR Scanner</header>
+<header>Ticket scanner</header>
 
+<!-- Ticket UI (optie 1) -->
 <div class="card">
-  <h2>Scanner</h2>
-  <p>Richt de QR‑code in het groene kader.</p>
-  <button id="openScanner">Scanner openen</button>
+  <h2>Jouw ticket</h2>
+  <div class="ticket">
+    <div class="ticket-header">Ticket</div>
+
+    <div class="ticket-row">
+      <div>
+        <div class="ticket-label">Code</div>
+        <!-- Dit is de ticketcode die we tonen -->
+        <div class="ticket-value" id="ticketCode">Q-T9kuhRZ</div>
+      </div>
+      <div>
+        <div class="ticket-label">Type</div>
+        <span class="ticket-type" id="ticketType">VIP</span>
+      </div>
+    </div>
+
+    <div class="ticket-row" style="margin-top:10px;">
+      <div class="ticket-label">Status</div>
+      <div id="ticketStatus" class="ticket-status bad">
+        Nog niet gescand
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:12px;">
+    <button id="openScanner">Ticket scannen</button>
+  </p>
+</div>
+
+<!-- Scanner UI (optie 3) -->
+<div class="card">
+  <h2>Scanner debug</h2>
+  <p>Laat hier zien wat er gescand werd:</p>
   <div id="result" style="margin-top:10px;font-weight:bold;"></div>
 </div>
 
-<div class="card">
-  <h2>Test QR‑codes</h2>
-  <p>Scan deze om je scanner te testen:</p>
-
-  <p><b>Testcode 1: "TEST_OK"</b></p>
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TEST_OK">
-
-  <p><b>Testcode 2: "123456"</b></p>
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=123456">
-
-  <p><b>Testcode 3: "ELIAS_TEST"</b></p>
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ELIAS_TEST">
-</div>
-
+<!-- Scanner overlay -->
 <div id="scannerOverlay">
   <div id="scannerBox">
     <div style="position:relative;">
@@ -109,11 +179,17 @@ button{
   </div>
 </div>
 
+<!-- QR library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 
 <script>
+// Dummy beep
 const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 beep.volume = 0.4;
+
+// Dit is de "geldige" testcode die je mag gebruiken
+// Maak hier later je eigen logica van
+const GELDIGE_TICKET_CODE = "Q-T9kuhRZ";
 
 const Scanner = {
   stream:null,
@@ -164,7 +240,9 @@ const Scanner = {
 
     if(code){
       beep.play();
-      document.getElementById("result").textContent="Gescand: "+code.data;
+      const data = code.data;
+      document.getElementById("result").textContent = "Gescand: " + data;
+      this.updateTicketStatus(data);
       this.stop();
       return;
     }
@@ -172,6 +250,23 @@ const Scanner = {
     document.getElementById("status").textContent="Richt de QR‑code in het groene kader…";
 
     this.timer = setTimeout(()=>this.loop(video,canvas,ctx),120);
+  },
+
+  updateTicketStatus(scanned){
+    const statusEl = document.getElementById("ticketStatus");
+    const codeEl = document.getElementById("ticketCode");
+
+    codeEl.textContent = scanned;
+
+    if(scanned === GELDIGE_TICKET_CODE){
+      statusEl.textContent = "Geldig ticket";
+      statusEl.classList.remove("bad");
+      statusEl.classList.add("ok");
+    }else{
+      statusEl.textContent = "Ongeldig ticket";
+      statusEl.classList.remove("ok");
+      statusEl.classList.add("bad");
+    }
   },
 
   stop(){
