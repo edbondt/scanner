@@ -110,12 +110,14 @@ button{
   border-radius:10px;
   background:black;
 }
+
+/* ⭐ Nieuw automatisch kader dat altijd past */
 #frame{
   position:absolute;
   top:50%;
   left:50%;
-  width:60%;
-  height:60%;
+  width: min(70vw, 70vh);
+  height: min(70vw, 70vh);
   transform:translate(-50%,-50%);
   border:4px dashed #00ff55;
   border-radius:12px;
@@ -128,7 +130,7 @@ button{
 
 <header>Ticket scanner</header>
 
-<!-- Ticket UI (optie 1) -->
+<!-- Ticket UI -->
 <div class="card">
   <h2>Jouw ticket</h2>
   <div class="ticket">
@@ -137,7 +139,6 @@ button{
     <div class="ticket-row">
       <div>
         <div class="ticket-label">Code</div>
-        <!-- Dit is de ticketcode die we tonen -->
         <div class="ticket-value" id="ticketCode">Q-T9kuhRZ</div>
       </div>
       <div>
@@ -159,7 +160,7 @@ button{
   </p>
 </div>
 
-<!-- Scanner UI (optie 3) -->
+<!-- Scanner debug -->
 <div class="card">
   <h2>Scanner debug</h2>
   <p>Laat hier zien wat er gescand werd:</p>
@@ -179,7 +180,6 @@ button{
   </div>
 </div>
 
-<!-- QR library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 
 <script>
@@ -187,8 +187,7 @@ button{
 const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 beep.volume = 0.4;
 
-// Dit is de "geldige" testcode die je mag gebruiken
-// Maak hier later je eigen logica van
+// Geldige testcode
 const GELDIGE_TICKET_CODE = "Q-T9kuhRZ";
 
 const Scanner = {
