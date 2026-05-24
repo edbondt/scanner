@@ -1,134 +1,153 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ticket scanner</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>festival app</title>
 
-<style>
-body{
-  margin:0;
-  background:#f4f4f4;
-  font-family:Arial, sans-serif;
-}
-header{
-  background:#ff4d4d;
-  padding:12px;
-  color:white;
-  font-weight:bold;
-  font-size:20px;
-}
-button{
-  padding:10px 14px;
-  border:none;
-  border-radius:6px;
-  background:#ff4d4d;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-.card{
-  background:white;
-  padding:16px;
-  margin:16px;
-  border-radius:12px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
-}
-.hidden{display:none!important}
+  <!-- PWA manifest inline via data-URL (één bestand) -->
+  <link rel="manifest" href="data:application/json,{
+    &quot;name&quot;:&quot;festival app&quot;,
+    &quot;short_name&quot;:&quot;festival&quot;,
+    &quot;start_url&quot;:&quot;.&quot;,
+    &quot;display&quot;:&quot;standalone&quot;,
+    &quot;background_color&quot;:&quot;#ffffff&quot;,
+    &quot;theme_color&quot;:&quot;#ff4d4d&quot;
+  }">
 
-/* Ticket UI */
-.ticket{
-  border-radius:16px;
-  border:1px solid #ddd;
-  padding:16px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-.ticket-header{
-  font-size:18px;
-  font-weight:bold;
-}
-.ticket-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.ticket-label{
-  color:#777;
-  font-size:14px;
-}
-.ticket-value{
-  font-weight:bold;
-  font-size:16px;
-}
-.ticket-type{
-  display:inline-block;
-  padding:4px 10px;
-  border-radius:999px;
-  background:#ffe6b3;
-  color:#b36b00;
-  font-weight:bold;
-  font-size:13px;
-}
-.ticket-status{
-  margin-top:8px;
-  padding:8px 10px;
-  border-radius:8px;
-  font-size:14px;
-  font-weight:bold;
-}
-.ticket-status.ok{
-  background:#e6ffe9;
-  color:#1f8a3b;
-}
-.ticket-status.bad{
-  background:#ffe6e6;
-  color:#b30000;
-}
+  <meta name="theme-color" content="#ff4d4d">
 
-/* Scanner overlay */
-#scannerOverlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.7);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
-#scannerBox{
-  background:white;
-  padding:16px;
-  border-radius:10px;
-  width:90%;
-  max-width:420px;
-  text-align:center;
-}
-#video{
-  width:100%;
-  border-radius:10px;
-  background:black;
-}
+  <style>
+    body{
+      margin:0;
+      background:#f4f4f4;
+      font-family:Arial, sans-serif;
+    }
+    header{
+      background:#ff4d4d;
+      padding:12px;
+      color:white;
+      font-weight:bold;
+      font-size:20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    button{
+      padding:10px 14px;
+      border:none;
+      border-radius:6px;
+      background:#ff4d4d;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    .card{
+      background:white;
+      padding:16px;
+      margin:16px;
+      border-radius:12px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    }
+    .hidden{display:none!important}
 
-/* ⭐ Nieuw automatisch kader dat altijd past */
-#frame{
-  position:absolute;
-  top:50%;
-  left:50%;
-  width: min(70vw, 70vh);
-  height: min(70vw, 70vh);
-  transform:translate(-50%,-50%);
-  border:4px dashed #00ff55;
-  border-radius:12px;
-  pointer-events:none;
-}
-</style>
+    /* Ticket UI */
+    .ticket{
+      border-radius:16px;
+      border:1px solid #ddd;
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .ticket-header{
+      font-size:18px;
+      font-weight:bold;
+    }
+    .ticket-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .ticket-label{
+      color:#777;
+      font-size:14px;
+    }
+    .ticket-value{
+      font-weight:bold;
+      font-size:16px;
+      word-break:break-all;
+    }
+    .ticket-type{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#ffe6b3;
+      color:#b36b00;
+      font-weight:bold;
+      font-size:13px;
+    }
+    .ticket-status{
+      margin-top:8px;
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:14px;
+      font-weight:bold;
+    }
+    .ticket-status.ok{
+      background:#e6ffe9;
+      color:#1f8a3b;
+    }
+    .ticket-status.bad{
+      background:#ffe6e6;
+      color:#b30000;
+    }
+
+    /* Scanner overlay */
+    #scannerOverlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.7);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+    #scannerBox{
+      background:white;
+      padding:16px;
+      border-radius:10px;
+      width:90%;
+      max-width:420px;
+      text-align:center;
+    }
+    #video{
+      width:100%;
+      border-radius:10px;
+      background:black;
+    }
+
+    /* Automatisch passend kader */
+    #frame{
+      position:absolute;
+      top:50%;
+      left:50%;
+      width: min(70vw, 70vh);
+      height: min(70vw, 70vh);
+      transform:translate(-50%,-50%);
+      border:4px dashed #00ff55;
+      border-radius:12px;
+      pointer-events:none;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>Ticket scanner</header>
+<header>
+  <span>festival app</span>
+  <button id="installBtn" class="hidden">App installeren</button>
+</header>
 
 <!-- Ticket UI -->
 <div class="card">
@@ -163,7 +182,7 @@ button{
 <!-- Scanner debug -->
 <div class="card">
   <h2>Scanner debug</h2>
-  <p>Laat hier zien wat er gescand werd:</p>
+  <p>Laat hier zien wat er gescand werd (offline, alleen type scan):</p>
   <div id="result" style="margin-top:10px;font-weight:bold;"></div>
 </div>
 
@@ -180,14 +199,11 @@ button{
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+<!-- jsQR MOET lokaal staan als jsqr.js in dezelfde map -->
+<script src="jsqr.js"></script>
 
 <script>
-// Dummy beep
-const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-beep.volume = 0.4;
-
-// Geldige testcode
+// Alles lokaal: alleen scan-type, geen netwerk
 const GELDIGE_TICKET_CODE = "Q-T9kuhRZ";
 
 const Scanner = {
@@ -205,11 +221,7 @@ const Scanner = {
         height:{ ideal:720 }
       }
     })
-    .catch(() => {
-      return navigator.mediaDevices.getUserMedia({
-        video:true
-      });
-    })
+    .catch(() => navigator.mediaDevices.getUserMedia({ video:true }))
     .then(stream=>{
       this.stream = stream;
       const video = document.getElementById("video");
@@ -238,7 +250,6 @@ const Scanner = {
     const code = jsQR(img.data,canvas.width,canvas.height);
 
     if(code){
-      beep.play();
       const data = code.data;
       document.getElementById("result").textContent = "Gescand: " + data;
       this.updateTicketStatus(data);
@@ -280,6 +291,57 @@ const Scanner = {
 
 document.getElementById("openScanner").onclick=()=>Scanner.start();
 document.getElementById("closeScanner").onclick=()=>Scanner.stop();
+
+/* PWA service worker inline via Blob (één bestand) */
+if('serviceWorker' in navigator){
+  const swCode = `
+    const CACHE_NAME = 'festival-app-v1';
+    const ASSETS = ['.','index.html','jsqr.js'];
+
+    self.addEventListener('install', (event)=>{
+      event.waitUntil(
+        caches.open(CACHE_NAME).then(cache=>cache.addAll(ASSETS))
+      );
+    });
+
+    self.addEventListener('activate', (event)=>{
+      event.waitUntil(
+        caches.keys().then(keys =>
+          Promise.all(
+            keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+          )
+        )
+      );
+    });
+
+    self.addEventListener('fetch', (event)=>{
+      event.respondWith(
+        caches.match(event.request).then(resp => resp || fetch(event.request))
+      );
+    });
+  `;
+  const blob = new Blob([swCode], {type:'text/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl);
+}
+
+/* PWA install prompt */
+let deferredPrompt = null;
+const installBtn = document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.classList.remove('hidden');
+});
+
+installBtn.addEventListener('click', async ()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  installBtn.classList.add('hidden');
+});
 </script>
 
 </body>
