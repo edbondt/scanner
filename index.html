@@ -23,8 +23,6 @@ body{
   background:#f4f4f4;
   font-family:Arial, sans-serif;
 }
-
-/* HEADER */
 header{
   background:#ff4d4d;
   padding:12px;
@@ -35,29 +33,18 @@ header{
   justify-content:space-between;
   align-items:center;
 }
-
-/* MENU BAR */
-#menu{
-  display:flex;
-  overflow-x:auto;
-  background:#fff;
-  border-bottom:1px solid #ddd;
-}
-#menu button{
-  flex:1;
-  padding:12px;
+button{
+  padding:14px 18px;
   border:none;
-  background:white;
-  font-weight:bold;
-  cursor:pointer;
-  border-right:1px solid #eee;
-}
-#menu button.active{
+  border-radius:8px;
   background:#ff4d4d;
   color:white;
+  font-weight:bold;
+  cursor:pointer;
+  width:100%;
+  margin-bottom:12px;
+  font-size:18px;
 }
-
-/* CARDS */
 .card{
   background:white;
   padding:16px;
@@ -65,8 +52,9 @@ header{
   border-radius:12px;
   box-shadow:0 2px 6px rgba(0,0,0,0.15);
 }
+.hidden{display:none!important}
 
-/* TICKET UI */
+/* Ticket UI */
 .ticket{
   border-radius:16px;
   border:1px solid #ddd;
@@ -117,8 +105,6 @@ header{
   background:#ffe6e6;
   color:#b30000;
 }
-
-.hidden{display:none!important}
 </style>
 </head>
 
@@ -129,124 +115,91 @@ header{
   <button id="installBtn" class="hidden">App installeren</button>
 </header>
 
-<!-- MENU -->
-<div id="menu">
-  <button class="active" data-page="scanner">Scanner</button>
-  <button data-page="admin">Admin</button>
-  <button data-page="crew">Crew</button>
-  <button data-page="bar">Bar</button>
-  <button data-page="viewer">Viewer</button>
+<!-- ROLE SELECTOR -->
+<div id="roleSelect" class="card">
+  <h2>Kies je rol</h2>
+  <button onclick="openPage('scanner')">Scanner</button>
+  <button onclick="openPage('admin')">Admin</button>
+  <button onclick="openPage('crew')">Crew</button>
+  <button onclick="openPage('bar')">Bar</button>
+  <button onclick="openPage('viewer')">Viewer</button>
 </div>
 
-<!-- PAGINA'S -->
-<div id="pages">
+<!-- SCANNER PAGE -->
+<div id="scanner" class="hidden">
+  <div class="card">
+    <h2>Jouw ticket</h2>
+    <div class="ticket">
+      <div class="ticket-header">Ticket</div>
 
-  <!-- SCANNER PAGE -->
-  <div id="scanner" class="page">
-
-    <div class="card">
-      <h2>Jouw ticket</h2>
-      <div class="ticket">
-        <div class="ticket-header">Ticket</div>
-
-        <div class="ticket-row">
-          <div>
-            <div class="ticket-label">Code</div>
-            <div class="ticket-value" id="ticketCode">Nog niet gescand</div>
-          </div>
-          <div>
-            <div class="ticket-label">Type</div>
-            <span class="ticket-type" id="ticketType">VIP</span>
-          </div>
+      <div class="ticket-row">
+        <div>
+          <div class="ticket-label">Code</div>
+          <div class="ticket-value" id="ticketCode">Nog niet gescand</div>
         </div>
+        <div>
+          <div class="ticket-label">Type</div>
+          <span class="ticket-type" id="ticketType">VIP</span>
+        </div>
+      </div>
 
-        <div class="ticket-row" style="margin-top:10px;">
-          <div class="ticket-label">Status</div>
-          <div id="ticketStatus" class="ticket-status bad">
-            Geen scan uitgevoerd
-          </div>
+      <div class="ticket-row" style="margin-top:10px;">
+        <div class="ticket-label">Status</div>
+        <div id="ticketStatus" class="ticket-status bad">
+          Geen scan uitgevoerd
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <h2>Type scan</h2>
-      <p>Typ een ticketcode en druk op SCAN.</p>
-
-      <input id="typedInput" placeholder="Typ code hier..." style="width:100%;padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;">
-      <button style="margin-top:12px;width:100%;" id="typedScanBtn">SCAN</button>
-
-      <div id="typedResult" style="margin-top:10px;font-weight:bold;"></div>
-    </div>
-
   </div>
 
-  <!-- ADMIN PAGE -->
-  <div id="admin" class="page hidden">
-    <div class="card">
-      <h2>Admin</h2>
-      <p>Admin functies komen hier.</p>
-    </div>
+  <div class="card">
+    <h2>Type scan</h2>
+    <input id="typedInput" placeholder="Typ code hier..." style="width:100%;padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;">
+    <button id="typedScanBtn">SCAN</button>
+    <div id="typedResult" style="margin-top:10px;font-weight:bold;"></div>
   </div>
 
-  <!-- CREW PAGE -->
-  <div id="crew" class="page hidden">
-    <div class="card">
-      <h2>Crew</h2>
-      <p>Crew tools komen hier.</p>
-    </div>
-  </div>
+  <button onclick="goHome()">Terug</button>
+</div>
 
-  <!-- BAR PAGE -->
-  <div id="bar" class="page hidden">
-    <div class="card">
-      <h2>Bar</h2>
-      <p>Bar functies komen hier.</p>
-    </div>
-  </div>
+<!-- ADMIN PAGE -->
+<div id="admin" class="hidden">
+  <div class="card"><h2>Admin</h2><p>Admin functies komen hier.</p></div>
+  <button onclick="goHome()">Terug</button>
+</div>
 
-  <!-- VIEWER PAGE -->
-  <div id="viewer" class="page hidden">
-    <div class="card">
-      <h2>Viewer</h2>
-      <p>Viewer scherm komt hier.</p>
-    </div>
-  </div>
+<!-- CREW PAGE -->
+<div id="crew" class="hidden">
+  <div class="card"><h2>Crew</h2><p>Crew tools komen hier.</p></div>
+  <button onclick="goHome()">Terug</button>
+</div>
 
+<!-- BAR PAGE -->
+<div id="bar" class="hidden">
+  <div class="card"><h2>Bar</h2><p>Bar functies komen hier.</p></div>
+  <button onclick="goHome()">Terug</button>
+</div>
+
+<!-- VIEWER PAGE -->
+<div id="viewer" class="hidden">
+  <div class="card"><h2>Viewer</h2><p>Viewer scherm komt hier.</p></div>
+  <button onclick="goHome()">Terug</button>
 </div>
 
 <script>
-// MENU NAVIGATIE
-document.querySelectorAll("#menu button").forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll("#menu button").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-
-    const page = btn.dataset.page;
-    document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
-    document.getElementById(page).classList.remove("hidden");
-  };
-});
-
-// TYPE SCAN LOGICA
-const GELDIGE_TICKET_CODE = "Q-T9kuhRZ";
-
-function updateStatus(code){
-  const statusEl = document.getElementById("ticketStatus");
-  const codeEl = document.getElementById("ticketCode");
-
-  codeEl.textContent = code;
-
-  if(code === GELDIGE_TICKET_CODE){
-    statusEl.textContent = "Geldig ticket";
-    statusEl.classList.remove("bad");
-    statusEl.classList.add("ok");
-  } else {
-    statusEl.textContent = "Ongeldig ticket";
-    statusEl.classList.remove("ok");
-    statusEl.classList.add("bad");
-  }
+// NAVIGATIE
+function openPage(id){
+  document.getElementById("roleSelect").classList.add("hidden");
+  document.getElementById(id).classList.remove("hidden");
 }
+function goHome(){
+  document.querySelectorAll("#scanner,#admin,#crew,#bar,#viewer")
+    .forEach(p=>p.classList.add("hidden"));
+  document.getElementById("roleSelect").classList.remove("hidden");
+}
+
+// TYPE SCAN
+const GELDIGE_TICKET_CODE = "Q-T9kuhRZ";
 
 document.getElementById("typedScanBtn").onclick = ()=>{
   const val = document.getElementById("typedInput").value.trim();
@@ -255,7 +208,21 @@ document.getElementById("typedScanBtn").onclick = ()=>{
     return;
   }
   document.getElementById("typedResult").textContent = "Gescand: " + val;
-  updateStatus(val);
+
+  const statusEl = document.getElementById("ticketStatus");
+  const codeEl = document.getElementById("ticketCode");
+
+  codeEl.textContent = val;
+
+  if(val === GELDIGE_TICKET_CODE){
+    statusEl.textContent = "Geldig ticket";
+    statusEl.classList.remove("bad");
+    statusEl.classList.add("ok");
+  } else {
+    statusEl.textContent = "Ongeldig ticket";
+    statusEl.classList.remove("ok");
+    statusEl.classList.add("bad");
+  }
 };
 
 /* PWA service worker inline */
