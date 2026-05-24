@@ -1,145 +1,106 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>festival app</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>festival app</title>
 
-  <!-- PWA manifest inline via data-URL (één bestand) -->
-  <link rel="manifest" href="data:application/json,{
-    &quot;name&quot;:&quot;festival app&quot;,
-    &quot;short_name&quot;:&quot;festival&quot;,
-    &quot;start_url&quot;:&quot;.&quot;,
-    &quot;display&quot;:&quot;standalone&quot;,
-    &quot;background_color&quot;:&quot;#ffffff&quot;,
-    &quot;theme_color&quot;:&quot;#ff4d4d&quot;
-  }">
+<!-- PWA manifest inline -->
+<link rel="manifest" href='data:application/json,{
+  "name":"festival app",
+  "short_name":"festival",
+  "start_url":".",
+  "display":"standalone",
+  "background_color":"#ffffff",
+  "theme_color":"#ff4d4d"
+}'>
 
-  <meta name="theme-color" content="#ff4d4d">
+<meta name="theme-color" content="#ff4d4d">
 
-  <style>
-    body{
-      margin:0;
-      background:#f4f4f4;
-      font-family:Arial, sans-serif;
-    }
-    header{
-      background:#ff4d4d;
-      padding:12px;
-      color:white;
-      font-weight:bold;
-      font-size:20px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-    button{
-      padding:10px 14px;
-      border:none;
-      border-radius:6px;
-      background:#ff4d4d;
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
-    }
-    .card{
-      background:white;
-      padding:16px;
-      margin:16px;
-      border-radius:12px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.15);
-    }
-    .hidden{display:none!important}
-
-    /* Ticket UI */
-    .ticket{
-      border-radius:16px;
-      border:1px solid #ddd;
-      padding:16px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-    .ticket-header{
-      font-size:18px;
-      font-weight:bold;
-    }
-    .ticket-row{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-    .ticket-label{
-      color:#777;
-      font-size:14px;
-    }
-    .ticket-value{
-      font-weight:bold;
-      font-size:16px;
-      word-break:break-all;
-    }
-    .ticket-type{
-      display:inline-block;
-      padding:4px 10px;
-      border-radius:999px;
-      background:#ffe6b3;
-      color:#b36b00;
-      font-weight:bold;
-      font-size:13px;
-    }
-    .ticket-status{
-      margin-top:8px;
-      padding:8px 10px;
-      border-radius:8px;
-      font-size:14px;
-      font-weight:bold;
-    }
-    .ticket-status.ok{
-      background:#e6ffe9;
-      color:#1f8a3b;
-    }
-    .ticket-status.bad{
-      background:#ffe6e6;
-      color:#b30000;
-    }
-
-    /* Scanner overlay */
-    #scannerOverlay{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.7);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:9999;
-    }
-    #scannerBox{
-      background:white;
-      padding:16px;
-      border-radius:10px;
-      width:90%;
-      max-width:420px;
-      text-align:center;
-    }
-    #video{
-      width:100%;
-      border-radius:10px;
-      background:black;
-    }
-
-    /* Automatisch passend kader */
-    #frame{
-      position:absolute;
-      top:50%;
-      left:50%;
-      width: min(70vw, 70vh);
-      height: min(70vw, 70vh);
-      transform:translate(-50%,-50%);
-      border:4px dashed #00ff55;
-      border-radius:12px;
-      pointer-events:none;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  background:#f4f4f4;
+  font-family:Arial, sans-serif;
+}
+header{
+  background:#ff4d4d;
+  padding:12px;
+  color:white;
+  font-weight:bold;
+  font-size:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:6px;
+  background:#ff4d4d;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+.card{
+  background:white;
+  padding:16px;
+  margin:16px;
+  border-radius:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
+.ticket{
+  border-radius:16px;
+  border:1px solid #ddd;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.ticket-header{
+  font-size:18px;
+  font-weight:bold;
+}
+.ticket-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.ticket-label{
+  color:#777;
+  font-size:14px;
+}
+.ticket-value{
+  font-weight:bold;
+  font-size:16px;
+  word-break:break-all;
+}
+.ticket-type{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  background:#ffe6b3;
+  color:#b36b00;
+  font-weight:bold;
+  font-size:13px;
+}
+.ticket-status{
+  margin-top:8px;
+  padding:8px 10px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:bold;
+}
+.ticket-status.ok{
+  background:#e6ffe9;
+  color:#1f8a3b;
+}
+.ticket-status.bad{
+  background:#ffe6e6;
+  color:#b30000;
+}
+.hidden{display:none!important}
+</style>
 </head>
 
 <body>
@@ -158,7 +119,7 @@
     <div class="ticket-row">
       <div>
         <div class="ticket-label">Code</div>
-        <div class="ticket-value" id="ticketCode">Q-T9kuhRZ</div>
+        <div class="ticket-value" id="ticketCode">Nog niet gescand</div>
       </div>
       <div>
         <div class="ticket-label">Type</div>
@@ -169,134 +130,59 @@
     <div class="ticket-row" style="margin-top:10px;">
       <div class="ticket-label">Status</div>
       <div id="ticketStatus" class="ticket-status bad">
-        Nog niet gescand
+        Geen scan uitgevoerd
       </div>
     </div>
   </div>
-
-  <p style="margin-top:12px;">
-    <button id="openScanner">Ticket scannen</button>
-  </p>
 </div>
 
-<!-- Scanner debug -->
+<!-- TYPE SCAN -->
 <div class="card">
-  <h2>Scanner debug</h2>
-  <p>Laat hier zien wat er gescand werd (offline, alleen type scan):</p>
-  <div id="result" style="margin-top:10px;font-weight:bold;"></div>
-</div>
+  <h2>Type scan</h2>
+  <p>Typ een ticketcode en druk op SCAN.</p>
 
-<!-- Scanner overlay -->
-<div id="scannerOverlay">
-  <div id="scannerBox">
-    <div style="position:relative;">
-      <video id="video" autoplay playsinline></video>
-      <div id="frame"></div>
-    </div>
-    <canvas id="canvas" class="hidden"></canvas>
-    <p id="status" style="margin-top:10px;color:#555;">Camera starten…</p>
-    <button id="closeScanner">Sluiten</button>
-  </div>
-</div>
+  <input id="typedInput" placeholder="Typ code hier..." style="width:100%;padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;">
+  <button style="margin-top:12px;width:100%;" id="typedScanBtn">SCAN</button>
 
-<!-- jsQR MOET lokaal staan als jsqr.js in dezelfde map -->
-<script src="jsqr.js"></script>
+  <div id="typedResult" style="margin-top:10px;font-weight:bold;"></div>
+</div>
 
 <script>
-// Alles lokaal: alleen scan-type, geen netwerk
+// Alleen type-scan, geen camera
 const GELDIGE_TICKET_CODE = "Q-T9kuhRZ";
 
-const Scanner = {
-  stream:null,
-  timer:null,
+function updateStatus(code){
+  const statusEl = document.getElementById("ticketStatus");
+  const codeEl = document.getElementById("ticketCode");
 
-  start(){
-    document.getElementById("scannerOverlay").style.display="flex";
-    document.getElementById("status").textContent="Camera starten…";
+  codeEl.textContent = code;
 
-    navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:{ ideal:"environment" },
-        width:{ ideal:1280 },
-        height:{ ideal:720 }
-      }
-    })
-    .catch(() => navigator.mediaDevices.getUserMedia({ video:true }))
-    .then(stream=>{
-      this.stream = stream;
-      const video = document.getElementById("video");
-      video.srcObject = stream;
-      video.play();
-
-      const canvas = document.getElementById("canvas");
-      const ctx = canvas.getContext("2d");
-
-      setTimeout(()=>this.loop(video,canvas,ctx),500);
-    })
-    .catch(err=>{
-      document.getElementById("status").textContent="Camera fout: " + err;
-    });
-  },
-
-  loop(video,canvas,ctx){
-    if(!this.stream) return;
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    ctx.drawImage(video,0,0,canvas.width,canvas.height);
-
-    const img = ctx.getImageData(0,0,canvas.width,canvas.height);
-    const code = jsQR(img.data,canvas.width,canvas.height);
-
-    if(code){
-      const data = code.data;
-      document.getElementById("result").textContent = "Gescand: " + data;
-      this.updateTicketStatus(data);
-      this.stop();
-      return;
-    }
-
-    document.getElementById("status").textContent="Richt de QR‑code in het groene kader…";
-
-    this.timer = setTimeout(()=>this.loop(video,canvas,ctx),120);
-  },
-
-  updateTicketStatus(scanned){
-    const statusEl = document.getElementById("ticketStatus");
-    const codeEl = document.getElementById("ticketCode");
-
-    codeEl.textContent = scanned;
-
-    if(scanned === GELDIGE_TICKET_CODE){
-      statusEl.textContent = "Geldig ticket";
-      statusEl.classList.remove("bad");
-      statusEl.classList.add("ok");
-    }else{
-      statusEl.textContent = "Ongeldig ticket";
-      statusEl.classList.remove("ok");
-      statusEl.classList.add("bad");
-    }
-  },
-
-  stop(){
-    document.getElementById("scannerOverlay").style.display="none";
-    if(this.timer) clearTimeout(this.timer);
-    if(this.stream){
-      this.stream.getTracks().forEach(t=>t.stop());
-      this.stream=null;
-    }
+  if(code === GELDIGE_TICKET_CODE){
+    statusEl.textContent = "Geldig ticket";
+    statusEl.classList.remove("bad");
+    statusEl.classList.add("ok");
+  } else {
+    statusEl.textContent = "Ongeldig ticket";
+    statusEl.classList.remove("ok");
+    statusEl.classList.add("bad");
   }
+}
+
+document.getElementById("typedScanBtn").onclick = ()=>{
+  const val = document.getElementById("typedInput").value.trim();
+  if(val === ""){
+    document.getElementById("typedResult").textContent = "Geen code ingevoerd";
+    return;
+  }
+  document.getElementById("typedResult").textContent = "Gescand: " + val;
+  updateStatus(val);
 };
 
-document.getElementById("openScanner").onclick=()=>Scanner.start();
-document.getElementById("closeScanner").onclick=()=>Scanner.stop();
-
-/* PWA service worker inline via Blob (één bestand) */
+/* PWA service worker inline */
 if('serviceWorker' in navigator){
   const swCode = `
     const CACHE_NAME = 'festival-app-v1';
-    const ASSETS = ['.','index.html','jsqr.js'];
+    const ASSETS = ['.','index.html'];
 
     self.addEventListener('install', (event)=>{
       event.waitUntil(
@@ -325,7 +211,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register(swUrl);
 }
 
-/* PWA install prompt */
+/* Install prompt */
 let deferredPrompt = null;
 const installBtn = document.getElementById('installBtn');
 
