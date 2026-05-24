@@ -34,16 +34,13 @@ header{
   align-items:center;
 }
 button{
-  padding:14px 18px;
+  padding:10px 14px;
   border:none;
   border-radius:8px;
   background:#ff4d4d;
   color:white;
   font-weight:bold;
   cursor:pointer;
-  width:100%;
-  margin-bottom:12px;
-  font-size:18px;
 }
 .card{
   background:white;
@@ -53,6 +50,13 @@ button{
   box-shadow:0 2px 6px rgba(0,0,0,0.15);
 }
 .hidden{display:none!important}
+
+/* Role selector */
+.role-btn{
+  width:100%;
+  margin-bottom:10px;
+  font-size:18px;
+}
 
 /* Ticket UI */
 .ticket{
@@ -105,6 +109,32 @@ button{
   background:#ffe6e6;
   color:#b30000;
 }
+
+/* Lists */
+.list-item{
+  border-bottom:1px solid #eee;
+  padding:8px 0;
+}
+.list-label{
+  font-size:12px;
+  color:#777;
+}
+.list-main{
+  font-size:14px;
+  font-weight:bold;
+}
+.badge{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:999px;
+  font-size:11px;
+  background:#eee;
+  margin-left:6px;
+}
+.badge-crew{background:#e0f7ff;}
+.badge-bar{background:#ffe0f0;}
+.badge-viewer{background:#e8e0ff;}
+.badge-scanner{background:#e0ffe5;}
 </style>
 </head>
 
@@ -118,17 +148,17 @@ button{
 <!-- ROLE SELECTOR -->
 <div id="roleSelect" class="card">
   <h2>Kies je rol</h2>
-  <button onclick="openPage('scanner')">Scanner</button>
-  <button onclick="openPage('admin')">Admin</button>
-  <button onclick="openPage('crew')">Crew</button>
-  <button onclick="openPage('bar')">Bar</button>
-  <button onclick="openPage('viewer')">Viewer</button>
+  <button class="role-btn" onclick="openRole('scanner')">Scanner</button>
+  <button class="role-btn" onclick="openRole('admin')">Admin</button>
+  <button class="role-btn" onclick="openRole('crew')">Crew</button>
+  <button class="role-btn" onclick="openRole('bar')">Bar</button>
+  <button class="role-btn" onclick="openRole('viewer')">Viewer</button>
 </div>
 
-<!-- SCANNER PAGE -->
+<!-- SCANNER ROLE -->
 <div id="scanner" class="hidden">
   <div class="card">
-    <h2>Jouw ticket</h2>
+    <h2>Scanner – ticket</h2>
     <div class="ticket">
       <div class="ticket-header">Ticket</div>
 
@@ -155,46 +185,121 @@ button{
   <div class="card">
     <h2>Type scan</h2>
     <input id="typedInput" placeholder="Typ code hier..." style="width:100%;padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;">
-    <button id="typedScanBtn">SCAN</button>
+    <button id="typedScanBtn" style="width:100%;margin-top:10px;">SCAN</button>
     <div id="typedResult" style="margin-top:10px;font-weight:bold;"></div>
   </div>
 
-  <button onclick="goHome()">Terug</button>
+  <div class="card">
+    <h3>Melding naar admin</h3>
+    <input id="scannerMsg" placeholder="Typ melding..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">
+    <button style="width:100%;margin-top:8px;" onclick="sendMessage('Scanner','scannerMsg')">Stuur melding</button>
+  </div>
+
+  <button style="margin:16px;" onclick="goHome()">Terug</button>
 </div>
 
-<!-- ADMIN PAGE -->
+<!-- ADMIN ROLE -->
 <div id="admin" class="hidden">
-  <div class="card"><h2>Admin</h2><p>Admin functies komen hier.</p></div>
-  <button onclick="goHome()">Terug</button>
+  <div class="card">
+    <h2>Admin – meldingen</h2>
+    <div id="adminMessages"></div>
+    <div id="noAdminMessages" class="list-label">Nog geen meldingen.</div>
+  </div>
+
+  <div class="card">
+    <h3>Melding naar admin (zelftest)</h3>
+    <input id="adminMsg" placeholder="Typ melding..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">
+    <button style="width:100%;margin-top:8px;" onclick="sendMessage('Admin','adminMsg')">Stuur melding</button>
+  </div>
+
+  <button style="margin:16px;" onclick="goHome()">Terug</button>
 </div>
 
-<!-- CREW PAGE -->
+<!-- CREW ROLE -->
 <div id="crew" class="hidden">
-  <div class="card"><h2>Crew</h2><p>Crew tools komen hier.</p></div>
-  <button onclick="goHome()">Terug</button>
+  <div class="card">
+    <h2>Crew – toegewezen meldingen</h2>
+    <div id="crewMessages"></div>
+    <div id="noCrewMessages" class="list-label">Nog geen meldingen toegewezen aan Crew.</div>
+  </div>
+
+  <div class="card">
+    <h3>Melding naar admin</h3>
+    <input id="crewMsg" placeholder="Typ melding..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">
+    <button style="width:100%;margin-top:8px;" onclick="sendMessage('Crew','crewMsg')">Stuur melding</button>
+  </div>
+
+  <button style="margin:16px;" onclick="goHome()">Terug</button>
 </div>
 
-<!-- BAR PAGE -->
+<!-- BAR ROLE -->
 <div id="bar" class="hidden">
-  <div class="card"><h2>Bar</h2><p>Bar functies komen hier.</p></div>
-  <button onclick="goHome()">Terug</button>
+  <div class="card">
+    <h2>Bar – bestellingen</h2>
+    <div id="barOrders"></div>
+    <div id="noBarOrders" class="list-label">Nog geen bestellingen.</div>
+  </div>
+
+  <div class="card">
+    <h3>Beheer (wachtwoord nodig)</h3>
+    <input id="barPass" type="password" placeholder="Wachtwoord (1235)" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">
+    <button style="width:100%;margin-top:8px;" onclick="unlockBar()">Ontgrendel beheer</button>
+    <div id="barManage" class="hidden" style="margin-top:10px;">
+      <div class="list-label">Klik op een bestelling om status te wijzigen.</div>
+    </div>
+    <div id="barPassMsg" class="list-label" style="margin-top:6px;"></div>
+  </div>
+
+  <div class="card">
+    <h3>Melding naar admin</h3>
+    <input id="barMsg" placeholder="Typ melding..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">
+    <button style="width:100%;margin-top:8px;" onclick="sendMessage('Bar','barMsg')">Stuur melding</button>
+  </div>
+
+  <button style="margin:16px;" onclick="goHome()">Terug</button>
 </div>
 
-<!-- VIEWER PAGE -->
+<!-- VIEWER ROLE -->
 <div id="viewer" class="hidden">
-  <div class="card"><h2>Viewer</h2><p>Viewer scherm komt hier.</p></div>
-  <button onclick="goHome()">Terug</button>
+  <div class="card">
+    <h2>Viewer – drankjes bestellen</h2>
+    <label class="list-label">Kies drankje:</label>
+    <select id="viewerDrink" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;margin-top:4px;">
+      <option value="Cola token">Cola token</option>
+      <option value="Water token">Water token</option>
+      <option value="Snack token">Snack token</option>
+    </select>
+    <button style="width:100%;margin-top:10px;" onclick="placeOrder('Viewer')">Bestel</button>
+    <div id="viewerOrderMsg" style="margin-top:8px;font-weight:bold;"></div>
+  </div>
+
+  <div class="card">
+    <h3>Melding naar admin</h3>
+    <input id="viewerMsg" placeholder="Typ melding..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">
+    <button style="width:100%;margin-top:8px;" onclick="sendMessage('Viewer','viewerMsg')">Stuur melding</button>
+  </div>
+
+  <button style="margin:16px;" onclick="goHome()">Terug</button>
 </div>
 
 <script>
+// DATA
+let messages = []; // {id, from, text, assignedTo}
+let orders = [];   // {id, from, item, status}
+
 // NAVIGATIE
-function openPage(id){
+function openRole(id){
   document.getElementById("roleSelect").classList.add("hidden");
+  ["scanner","admin","crew","bar","viewer"].forEach(r=>{
+    document.getElementById(r).classList.add("hidden");
+  });
   document.getElementById(id).classList.remove("hidden");
+  refreshAll();
 }
 function goHome(){
-  document.querySelectorAll("#scanner,#admin,#crew,#bar,#viewer")
-    .forEach(p=>p.classList.add("hidden"));
+  ["scanner","admin","crew","bar","viewer"].forEach(r=>{
+    document.getElementById(r).classList.add("hidden");
+  });
   document.getElementById("roleSelect").classList.remove("hidden");
 }
 
@@ -225,7 +330,149 @@ document.getElementById("typedScanBtn").onclick = ()=>{
   }
 };
 
-/* PWA service worker inline */
+// MESSAGES
+function sendMessage(fromRole, inputId){
+  const el = document.getElementById(inputId);
+  const text = el.value.trim();
+  if(!text) return;
+  const id = Date.now() + "_" + Math.random().toString(16).slice(2);
+  messages.push({id, from:fromRole, text, assignedTo:null});
+  el.value = "";
+  refreshAll();
+}
+
+// ADMIN VIEW
+function refreshAdminMessages(){
+  const wrap = document.getElementById("adminMessages");
+  const empty = document.getElementById("noAdminMessages");
+  wrap.innerHTML = "";
+  if(messages.length === 0){
+    empty.classList.remove("hidden");
+    return;
+  }
+  empty.classList.add("hidden");
+
+  messages.forEach(msg=>{
+    const div = document.createElement("div");
+    div.className = "list-item";
+    const badge = msg.assignedTo ? ` → toegewezen aan ${msg.assignedTo}` : " (nog niet toegewezen)";
+    div.innerHTML = `
+      <div class="list-label">Van: ${msg.from}${badge}</div>
+      <div class="list-main">${msg.text}</div>
+      <div style="margin-top:6px;">
+        <span class="list-label">Toewijzen aan:</span><br>
+        <button style="margin-top:4px;margin-right:4px;" onclick="assignMsg('${msg.id}','Scanner')">Scanner</button>
+        <button style="margin-top:4px;margin-right:4px;" onclick="assignMsg('${msg.id}','Crew')">Crew</button>
+        <button style="margin-top:4px;margin-right:4px;" onclick="assignMsg('${msg.id}','Bar')">Bar</button>
+        <button style="margin-top:4px;" onclick="assignMsg('${msg.id}','Viewer')">Viewer</button>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function assignMsg(id, role){
+  const m = messages.find(m=>m.id===id);
+  if(!m) return;
+  m.assignedTo = role;
+  refreshAll();
+}
+
+// CREW VIEW
+function refreshCrewMessages(){
+  const wrap = document.getElementById("crewMessages");
+  const empty = document.getElementById("noCrewMessages");
+  wrap.innerHTML = "";
+  const crewMsgs = messages.filter(m=>m.assignedTo==="Crew");
+  if(crewMsgs.length === 0){
+    empty.classList.remove("hidden");
+    return;
+  }
+  empty.classList.add("hidden");
+
+  crewMsgs.forEach(msg=>{
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+      <div class="list-label">Van: ${msg.from}</div>
+      <div class="list-main">${msg.text}</div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+// ORDERS
+function placeOrder(fromRole){
+  const select = document.getElementById("viewerDrink");
+  const item = select.value;
+  const id = Date.now() + "_" + Math.random().toString(16).slice(2);
+  orders.push({id, from:fromRole, item, status:"Nieuw"});
+  document.getElementById("viewerOrderMsg").textContent = "Bestelling geplaatst: " + item;
+  refreshAll();
+}
+
+function refreshBarOrders(){
+  const wrap = document.getElementById("barOrders");
+  const empty = document.getElementById("noBarOrders");
+  wrap.innerHTML = "";
+  if(orders.length === 0){
+    empty.classList.remove("hidden");
+    return;
+  }
+  empty.classList.add("hidden");
+
+  orders.forEach(order=>{
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+      <div class="list-label">Van: ${order.from} – Status: ${order.status}</div>
+      <div class="list-main">${order.item}</div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function unlockBar(){
+  const pass = document.getElementById("barPass").value.trim();
+  const msg = document.getElementById("barPassMsg");
+  const manage = document.getElementById("barManage");
+  if(pass === "1235"){
+    msg.textContent = "Beheer ontgrendeld.";
+    manage.classList.remove("hidden");
+    buildBarManage();
+  }else{
+    msg.textContent = "Fout wachtwoord.";
+    manage.classList.add("hidden");
+  }
+}
+
+function buildBarManage(){
+  const manage = document.getElementById("barManage");
+  manage.innerHTML = '<div class="list-label">Klik op een bestelling om status te wisselen (Nieuw → Klaar → Geannuleerd).</div>';
+  orders.forEach(order=>{
+    const btn = document.createElement("button");
+    btn.style.width = "100%";
+    btn.style.marginTop = "6px";
+    btn.textContent = `${order.item} (${order.status})`;
+    btn.onclick = ()=>{
+      if(order.status === "Nieuw") order.status = "Klaar";
+      else if(order.status === "Klaar") order.status = "Geannuleerd";
+      else order.status = "Nieuw";
+      refreshAll();
+      buildBarManage();
+    };
+    manage.appendChild(btn);
+  });
+}
+
+// REFRESH
+function refreshAll(){
+  refreshAdminMessages();
+  refreshCrewMessages();
+  refreshBarOrders();
+}
+
+// PWA service worker inline
 if('serviceWorker' in navigator){
   const swCode = `
     const CACHE_NAME = 'festival-app-v1';
@@ -258,7 +505,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register(swUrl);
 }
 
-/* Install prompt */
+// Install prompt
 let deferredPrompt = null;
 const installBtn = document.getElementById('installBtn');
 
