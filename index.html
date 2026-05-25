@@ -104,7 +104,7 @@
 <body>
 
 <header>
-  <h1>Festival Console</h1>
+  <h1 id="roleHeader">Festival Console</h1>
 
   <nav>
     <button id="tab-scan" onclick="UI.showTab('scan')">Scanner</button>
@@ -328,6 +328,12 @@ const UI = {
       document.getElementById("tab-" + tab).classList.remove("active");
     });
 
+    // ADMIN LOCK
+    if (name === "admin" && Roles.current !== "admin") {
+      alert("Alleen admin mag deze pagina openen.");
+      return;
+    }
+
     document.getElementById("page-" + name).classList.remove("hidden");
     document.getElementById("tab-" + name).classList.add("active");
 
@@ -345,6 +351,16 @@ const UI = {
   },
 
   applyRole() {
+    document.getElementById("roleHeader").textContent =
+      `${Roles.name} (${Roles.current}) – rol wijzigen? klik hier`;
+
+    // ADMIN TAB VERBERGEN VOOR NIET‑ADMINS
+    if (Roles.current !== "admin") {
+      document.getElementById("tab-admin").classList.add("hidden");
+    } else {
+      document.getElementById("tab-admin").classList.remove("hidden");
+    }
+
     if (Roles.current === "viewer") {
       this.showTab("dashboard");
       return;
@@ -524,31 +540,3 @@ const Admin = {
     this.renderAllReports();
   },
 
-  renderMissedCalls() {
-    document.getElementById("adminMissedCalls").innerHTML = "Geen missed calls.";
-  },
-
-  renderAllReports() {
-    const reports = Storage.get("reports", []).slice().reverse();
-    const container = document.getElementById("adminAllReports");
-    container.innerHTML = "";
-
-    let filtered = reports.filter(r =>
-      ["open", "assigned", "in_progress"].includes(r.status)
-    );
-
-    if (Roles.current === "admin" && Roles.service) {
-      filtered = filtered.filter(r =>
-        r.team === Roles.service || r.assigned_to === Roles.service
-      );
-    }
-
-    if (filtered.length === 0) {
-      container.innerHTML = "<div class='admin-row'>Geen open incidenten.</div>";
-      return;
-    }
-
-    filtered.forEach(r => {
-      container.innerHTML += `
-        <div class="admin-row">
-          <span class="badge badge-status-${r.status}">${r
