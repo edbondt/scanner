@@ -310,6 +310,8 @@ const Roles = {
       this.service = savedService || null;
       document.getElementById("roleOverlay").style.display = "none";
       UI.applyRole();
+    } else {
+      document.getElementById("roleOverlay").style.display = "flex";
     }
   },
 
@@ -328,7 +330,6 @@ const UI = {
       document.getElementById("tab-" + tab).classList.remove("active");
     });
 
-    // ADMIN LOCK
     if (name === "admin" && Roles.current !== "admin") {
       alert("Alleen admin mag deze pagina openen.");
       return;
@@ -341,20 +342,10 @@ const UI = {
     if (name === "admin") Admin.render();
   },
 
-  setScanResult(text, type) {
-    const el = document.getElementById("scanResult");
-    el.textContent = text;
-    el.style.color =
-      type === "ok" ? "lightgreen" :
-      type === "warn" ? "orange" :
-      "red";
-  },
-
   applyRole() {
     document.getElementById("roleHeader").textContent =
       `${Roles.name} (${Roles.current}) – rol wijzigen? klik hier`;
 
-    // ADMIN TAB VERBERGEN VOOR NIET‑ADMINS
     if (Roles.current !== "admin") {
       document.getElementById("tab-admin").classList.add("hidden");
     } else {
@@ -540,3 +531,18 @@ const Admin = {
     this.renderAllReports();
   },
 
+  renderMissedCalls() {
+    document.getElementById("adminMissedCalls").innerHTML = "Geen missed calls.";
+  },
+
+  renderAllReports() {
+    const reports = Storage.get("reports", []).slice().reverse();
+    const container = document.getElementById("adminAllReports");
+    container.innerHTML = "";
+
+    let filtered = reports.filter(r =>
+      ["open", "assigned", "in_progress"].includes(r.status)
+    );
+
+    if (Roles.current === "admin" && Roles.service) {
+      filtered = filtered
