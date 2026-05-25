@@ -112,6 +112,7 @@
     <button id="tab-dashboard" onclick="UI.showTab('dashboard')">Dashboard</button>
     <button id="tab-callcenter" onclick="UI.showTab('callcenter')">Callcenter</button>
     <button id="tab-admin" onclick="UI.showTab('admin')">Admin</button>
+    <button onclick="Roles.changeRole()" style="background:#4caf50;">Rol wijzigen</button>
   </nav>
 </header>
 
@@ -310,6 +311,10 @@ const Roles = {
       document.getElementById("roleOverlay").style.display = "none";
       UI.applyRole();
     }
+  },
+
+  changeRole() {
+    document.getElementById("roleOverlay").style.display = "flex";
   }
 };
 
@@ -355,7 +360,6 @@ const UI = {
       return;
     }
 
-    // fallback
     this.showTab("scan");
   }
 };
@@ -547,43 +551,4 @@ const Admin = {
     filtered.forEach(r => {
       container.innerHTML += `
         <div class="admin-row">
-          <span class="badge badge-status-${r.status}">${r.status}</span>
-          <strong>${r.location}</strong><br>
-          ${r.description}<br>
-          <small>Team: ${r.team}</small><br>
-          <small>Melder: ${r.caller_name}</small><br>
-          <button onclick="Admin.setStatus(${r.id}, 'in_progress')">In behandeling</button>
-          <button onclick="Admin.setStatus(${r.id}, 'closed')">Sluit incident</button>
-        </div>
-      `;
-    });
-  },
-
-  setStatus(id, status) {
-    const reports = Storage.get("reports", []);
-    const r = reports.find(x => x.id === id);
-    if (!r) return;
-    r.status = status;
-    if (status === "in_progress" && Roles.current === "admin" && Roles.service) {
-      r.assigned_to = Roles.service;
-      r.assigned_by = Roles.name || "Admin";
-      r.assigned_at = new Date().toISOString();
-    }
-    Storage.set("reports", reports);
-    Dashboard.update();
-    this.render();
-  }
-};
-
-/* INIT */
-window.addEventListener("load", () => {
-  Roles.load();
-  if (!Roles.current) {
-    UI.showTab("scan");
-  }
-  Dashboard.update();
-});
-</script>
-
-</body>
-</html>
+          <span class="badge badge-status-${r.status}">${r
